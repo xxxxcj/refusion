@@ -7,14 +7,12 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include "example/fr_parser.h"
 #include "tracker/tracker.h"
-int main(int argc, char const *argv[]) {
-  if (argc < 1) {
-    std::cerr << "Usage: fb_data_parser <dataset_path>" << std::endl;
-    return -1;
-  }
+int main() {
+
+    std::string filebase = "/home/wangwang/catkin_ws_refusion/rgbd_bonn_balloon";
 
   // Options for the TSDF representation
-  refusion::tsdfvh::TsdfVolumeOptions tsdf_options;
+  refusion::tsdfvh::TsdfVolumeOptions tsdf_options{};
   tsdf_options.voxel_size = 0.01;
   tsdf_options.num_buckets = 50000;
   tsdf_options.bucket_size = 10;
@@ -26,7 +24,7 @@ int main(int argc, char const *argv[]) {
   tsdf_options.min_sensor_depth = 0.1;
 
   // Options for the tracker
-  refusion::TrackerOptions tracker_options;
+  refusion::TrackerOptions tracker_options{};
   tracker_options.max_iterations_per_level[0] = 6;
   tracker_options.max_iterations_per_level[1] = 3;
   tracker_options.max_iterations_per_level[2] = 2;
@@ -38,7 +36,7 @@ int main(int argc, char const *argv[]) {
   tracker_options.huber_constant = 0.02;
 
   // Intrinsic parameters of the sensor
-  refusion::RgbdSensor sensor;
+  refusion::RgbdSensor sensor{};
   sensor.cx = 319.5f;
   sensor.cy = 239.5f;
   sensor.fx = 525.0;
@@ -49,7 +47,6 @@ int main(int argc, char const *argv[]) {
 
   refusion::Tracker tracker(tsdf_options, tracker_options, sensor);
 
-  std::string filebase(argv[1]);
   filebase += '/';
   std::stringstream filepath_out, filepath_time;
   filepath_out << filebase << "/result.txt";
@@ -59,6 +56,7 @@ int main(int argc, char const *argv[]) {
   int end = -1;
   int frame_skip = 1;
   FrParser parser(start, end, frame_skip);
+  std::cout << filebase;
   if (parser.OpenFile(filebase)) {
     while (parser.ReadNext()) {
       tracker.AddScan(parser.GetRgb(), parser.GetDepth());
